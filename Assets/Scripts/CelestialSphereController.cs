@@ -69,6 +69,14 @@ public class CelestialSphereController : MonoBehaviour
     private List<LineRenderer> gridLines = new List<LineRenderer>();
     private List<GameObject> directionLabels = new List<GameObject>();
 
+    // Horizon and Celestial Pole tracking
+    private LineRenderer horizonLineRenderer;
+    private GameObject northCelestialPole;
+    private GameObject southCelestialPole;
+    private GameObject northPoleLabel;
+    private GameObject southPoleLabel;
+    private float horizonTiltAngle = 0f; // Tilt based on device orientation
+
     // AR Direction Tracking
     private Quaternion currentDeviceRotation = Quaternion.identity;
     private Quaternion smoothedDeviceRotation = Quaternion.identity;
@@ -123,7 +131,7 @@ public class CelestialSphereController : MonoBehaviour
         CreateGridSystem();
         CreateCardinalDirections();
         CreateHorizonLine();
-        CreatePoles();
+        CreateCelestialPoles(); // Create celestial poles at correct altitude based on latitude
         CreateCelestialObjectLabels();
 
         currentDateTime = DateTime.Now;
@@ -273,6 +281,7 @@ public class CelestialSphereController : MonoBehaviour
         {
             UpdateDeviceOrientation();
             UpdateCelestialSphereOrientation();
+            UpdateHorizonRealTime(); // Update horizon based on device orientation
         }
         else
         {
@@ -283,6 +292,9 @@ public class CelestialSphereController : MonoBehaviour
 
         // Update labels every frame to ensure they stay with their objects
         UpdateCelestialObjectLabels();
+
+        // Update celestial pole positions based on current latitude
+        UpdateCelestialPolePositions();
     }
 
     #region AR Direction Tracking - REAL WORLD ALIGNED
@@ -501,6 +513,7 @@ public class CelestialSphereController : MonoBehaviour
             orientationInfo += $"Sidereal Time: {CalculateLocalSiderealTime():F1}°\n";
             orientationInfo += $"AR Mode: {(useARDirection ? "ACTIVE" : "OFF")}";
             orientationInfo += $"\nLocation: {latitude:F4}°, {longitude:F4}°";
+            orientationInfo += $"\nHorizon Tilt: {horizonTiltAngle:F1}° | N.Pole Alt: {latitude:F1}°";
 
             deviceOrientationText.text = orientationInfo;
         }
@@ -889,8 +902,16 @@ public class CelestialSphereController : MonoBehaviour
         // Update star positions
         UpdateStarPositions();
 
+        // Update celestial pole positions based on new latitude
+        UpdateCelestialPolePositions();
+
+        // Update horizon tilt based on new latitude
+        horizonTiltAngle = latitude; // Reset to latitude-based tilt
+        UpdateHorizonLinePositions(horizonTiltAngle);
+
         Debug.Log($"Sun position: {sun?.localPosition}");
         Debug.Log($"Moon position: {moon?.localPosition}");
+        Debug.Log($"Celestial poles and horizon updated for latitude: {latitude}°");
     }
 
     private void OnUpdateButtonClicked()
@@ -1330,32 +1351,20 @@ public class CelestialSphereController : MonoBehaviour
         directionLabels.Add(textObj);
     }
 
+    // Legacy method - kept for backwards compatibility
+    // Now using CreateCelestialPoleLabels() which positions poles based on latitude
     private void CreatePoleLabels()
     {
-        // North Pole Label
-        CreatePoleLabel("North Pole", Vector3.forward * sphereRadius * 1.2f, Color.blue);
-
-        // South Pole Label
-        CreatePoleLabel("South Pole", Vector3.back * sphereRadius * 1.2f, Color.red);
+        // This method is deprecated - pole labels are now created by CreateCelestialPoleLabels()
+        // which positions them at the correct altitude based on observer's latitude
+        Debug.Log("CreatePoleLabels() is deprecated - using CreateCelestialPoleLabels() instead");
     }
 
+    // Legacy method - kept for backwards compatibility
     private void CreatePoleLabel(string labelText, Vector3 position, Color color)
     {
-        GameObject textObj = new GameObject("PoleLabel_" + labelText.Replace(" ", ""));
-        textObj.transform.SetParent(celestialSphere);
-        textObj.transform.localPosition = position;
-
-        TextMesh text = textObj.AddComponent<TextMesh>();
-        text.text = labelText;
-        text.fontSize = 28; // Slightly larger font for pole labels
-        text.anchor = TextAnchor.MiddleCenter;
-        text.alignment = TextAlignment.Center;
-        text.color = color;
-        text.fontStyle = FontStyle.Bold;
-
-        // Make text face outward
-        textObj.transform.LookAt(textObj.transform.position * 2);
-        directionLabels.Add(textObj);
+        // This method is deprecated - use CreateCelestialPoleLabel() instead
+        Debug.Log($"CreatePoleLabel() is deprecated - label '{labelText}' not created");
     }
 
     private float GetAltitude(Transform obj)
@@ -1383,44 +1392,244 @@ public class CelestialSphereController : MonoBehaviour
 
     private void CreateHorizonLine()
     {
-        LineRenderer horizon = CreateGridLine("Horizon", Color.green);
-        horizon.positionCount = 72;
-        horizon.loop = true;
-        horizon.startWidth = horizonLineWidth; // Use customizable width
-        horizon.endWidth = horizonLineWidth;
+        horizonLineRenderer = CreateGridLine("Horizon", Color.green);
+        horizonLineRenderer.positionCount = 72;
+        horizonLineRenderer.loop = true;
+        horizonLineRenderer.startWidth = horizonLineWidth * 1.5f; // Slightly thicker for visibility
+        horizonLineRenderer.endWidth = horizonLineWidth * 1.5f;
+
+        // Initial horizon at altitude 0 (will be updated in real-time)
+        UpdateHorizonLinePositions(0f);
+    }
+
+    /// <summary>
+    /// Updates the horizon line positions based on tilt angle from device orientation
+    /// The horizon is positioned to be slightly below North celestial pole and above South
+    /// </summary>
+    private void UpdateHorizonLinePositions(float tiltAngle)
+    {
+        if (horizonLineRenderer == null) return;
+
+        // The horizon should be at altitude 0° in the observer's reference frame
+        // When tilted, the horizon creates an arc on the celestial sphere
+        // Tilt is applied so horizon passes below North pole marker and above South pole marker
+
+        float tiltRad = tiltAngle * Mathf.Deg2Rad;
 
         for (int i = 0; i < 72; i++)
         {
-            float angle = i * 5 * Mathf.Deg2Rad;
-            Vector3 point = new Vector3(
-                Mathf.Cos(angle),
-                0,
-                Mathf.Sin(angle)
-            ) * sphereRadius;
-            horizon.SetPosition(i, point);
+            float azimuthAngle = i * 5 * Mathf.Deg2Rad;
+
+            // Calculate the horizon point with tilt
+            // The horizon tilts along the N-S axis based on observer's latitude
+            float x = Mathf.Cos(azimuthAngle);
+            float z = Mathf.Sin(azimuthAngle);
+
+            // Apply tilt: horizon dips in the south direction and rises in the north
+            // This creates the effect where horizon is below north and above south
+            float y = -Mathf.Sin(tiltRad) * z;
+
+            // Normalize and scale to sphere radius
+            Vector3 point = new Vector3(x, y, z).normalized * sphereRadius;
+            horizonLineRenderer.SetPosition(i, point);
         }
+    }
+
+    /// <summary>
+    /// Updates the horizon in real-time based on device orientation and latitude
+    /// </summary>
+    private void UpdateHorizonRealTime()
+    {
+        if (horizonLineRenderer == null) return;
+
+        // Get device pitch (tilt) from smoothed rotation
+        Vector3 deviceEuler = smoothedDeviceRotation.eulerAngles;
+
+        // Normalize pitch to -180 to 180 range
+        float pitch = deviceEuler.x;
+        if (pitch > 180f) pitch -= 360f;
+
+        // The base horizon tilt is determined by the observer's latitude
+        // At latitude L, the celestial equator makes an angle of (90-L) with the horizon
+        // The North Celestial Pole is at altitude L above the horizon
+        float latitudeTilt = latitude;
+
+        // Combine latitude-based tilt with device orientation
+        // When device tilts, the apparent horizon shifts
+        float combinedTilt = latitudeTilt + (pitch * 0.5f); // Reduced pitch influence for smoother effect
+
+        // Clamp to reasonable values
+        combinedTilt = Mathf.Clamp(combinedTilt, -89f, 89f);
+
+        // Apply smoothing to avoid jitter
+        horizonTiltAngle = Mathf.Lerp(horizonTiltAngle, combinedTilt, smoothFactor);
+
+        // Update horizon line positions
+        UpdateHorizonLinePositions(horizonTiltAngle);
     }
 
     private void CreatePoles()
     {
-        // North Pole - positioned horizontally at the front
-        GameObject northPole = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        northPole.name = "NorthPole";
-        northPole.transform.SetParent(celestialSphere);
-        northPole.transform.localPosition = Vector3.forward * sphereRadius;
-        northPole.transform.localScale = Vector3.one * poleMarkerSize;
-        northPole.GetComponent<Renderer>().material.color = Color.blue;
+        // Legacy method - now using CreateCelestialPoles() instead
+        CreateCelestialPoles();
+    }
 
-        // South Pole - positioned horizontally at the back
-        GameObject southPole = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        southPole.name = "SouthPole";
-        southPole.transform.SetParent(celestialSphere);
-        southPole.transform.localPosition = Vector3.back * sphereRadius;
-        southPole.transform.localScale = Vector3.one * poleMarkerSize;
-        southPole.GetComponent<Renderer>().material.color = Color.red;
+    /// <summary>
+    /// Creates the celestial poles (North and South) at the correct altitude based on observer's latitude
+    /// The North Celestial Pole appears at an altitude equal to the observer's latitude
+    /// This ensures the horizon passes below the North pole label and above the South pole label
+    /// </summary>
+    private void CreateCelestialPoles()
+    {
+        // Calculate the position of celestial poles based on latitude
+        // North Celestial Pole: Declination = +90° -> appears at altitude = latitude
+        // South Celestial Pole: Declination = -90° -> appears at altitude = -latitude
 
-        // Create pole labels
-        CreatePoleLabels();
+        // For the celestial sphere visualization:
+        // - North Celestial Pole should be above the horizon (for northern hemisphere observers)
+        // - The horizon should pass below it
+        // - South Celestial Pole should be below the horizon
+
+        Vector3 northPolePos = CalculateCelestialPolePosition(true);
+        Vector3 southPolePos = CalculateCelestialPolePosition(false);
+
+        // North Celestial Pole - Blue marker
+        northCelestialPole = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        northCelestialPole.name = "NorthCelestialPole";
+        northCelestialPole.transform.SetParent(celestialSphere);
+        northCelestialPole.transform.localPosition = northPolePos;
+        northCelestialPole.transform.localScale = Vector3.one * poleMarkerSize * 1.5f; // Larger for visibility
+
+        Renderer northRenderer = northCelestialPole.GetComponent<Renderer>();
+        northRenderer.material = new Material(Shader.Find("Standard"));
+        northRenderer.material.color = new Color(0.2f, 0.4f, 1f, 1f); // Bright blue
+        northRenderer.material.EnableKeyword("_EMISSION");
+        northRenderer.material.SetColor("_EmissionColor", new Color(0.1f, 0.2f, 0.5f, 1f));
+
+        // South Celestial Pole - Red marker
+        southCelestialPole = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        southCelestialPole.name = "SouthCelestialPole";
+        southCelestialPole.transform.SetParent(celestialSphere);
+        southCelestialPole.transform.localPosition = southPolePos;
+        southCelestialPole.transform.localScale = Vector3.one * poleMarkerSize * 1.5f;
+
+        Renderer southRenderer = southCelestialPole.GetComponent<Renderer>();
+        southRenderer.material = new Material(Shader.Find("Standard"));
+        southRenderer.material.color = new Color(1f, 0.3f, 0.2f, 1f); // Bright red
+        southRenderer.material.EnableKeyword("_EMISSION");
+        southRenderer.material.SetColor("_EmissionColor", new Color(0.5f, 0.1f, 0.1f, 1f));
+
+        // Create labels for the celestial poles
+        CreateCelestialPoleLabels();
+
+        Debug.Log($"Celestial poles created - North at altitude: {latitude}°, South at altitude: {-latitude}°");
+    }
+
+    /// <summary>
+    /// Calculates the position of the celestial pole in the local coordinate system
+    /// </summary>
+    private Vector3 CalculateCelestialPolePosition(bool isNorth)
+    {
+        // The celestial pole appears at an altitude equal to the observer's latitude
+        // Altitude is measured from the horizon (Y=0 plane)
+
+        float poleAltitude = isNorth ? latitude : -latitude;
+
+        // For a point on the celestial sphere at a given altitude:
+        // Y = sin(altitude) * radius
+        // The horizontal distance from Y-axis = cos(altitude) * radius
+
+        float altRad = poleAltitude * Mathf.Deg2Rad;
+
+        // North pole is in the direction of North (positive Z in our coordinate system)
+        // South pole is in the direction of South (negative Z)
+        float y = Mathf.Sin(altRad) * sphereRadius;
+        float horizontalDist = Mathf.Cos(altRad) * sphereRadius;
+
+        if (isNorth)
+        {
+            // North celestial pole - positioned towards North (positive Z)
+            return new Vector3(0, y, horizontalDist);
+        }
+        else
+        {
+            // South celestial pole - positioned towards South (negative Z)
+            return new Vector3(0, y, -horizontalDist);
+        }
+    }
+
+    /// <summary>
+    /// Creates labels for the celestial poles
+    /// </summary>
+    private void CreateCelestialPoleLabels()
+    {
+        // North Celestial Pole Label
+        northPoleLabel = CreateCelestialPoleLabel("North", CalculateCelestialPolePosition(true), new Color(0.4f, 0.6f, 1f));
+
+        // South Celestial Pole Label
+        southPoleLabel = CreateCelestialPoleLabel("South", CalculateCelestialPolePosition(false), new Color(1f, 0.5f, 0.4f));
+    }
+
+    private GameObject CreateCelestialPoleLabel(string labelText, Vector3 position, Color color)
+    {
+        GameObject labelObj = new GameObject("CelestialPoleLabel_" + labelText);
+        labelObj.transform.SetParent(celestialSphere);
+
+        // Position the label slightly beyond the pole marker
+        labelObj.transform.localPosition = position.normalized * (sphereRadius * 1.15f);
+
+        // Add canvas for text rendering
+        Canvas canvas = labelObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.transform.localScale = Vector3.one * 0.012f;
+
+        // Add text component
+        TextMeshProUGUI text = labelObj.AddComponent<TextMeshProUGUI>();
+        text.text = labelText;
+        text.fontSize = 55;
+        text.color = color;
+        text.alignment = TextAlignmentOptions.Center;
+        text.fontStyle = FontStyles.Bold;
+        text.raycastTarget = false;
+
+        // Set up rect transform
+        RectTransform rectTransform = labelObj.GetComponent<RectTransform>();
+        rectTransform.sizeDelta = new Vector2(300, 100);
+
+        // Add billboard component to face camera
+        labelObj.AddComponent<BillboardText>();
+
+        directionLabels.Add(labelObj);
+
+        return labelObj;
+    }
+
+    /// <summary>
+    /// Updates the celestial pole positions based on current latitude (called when latitude changes)
+    /// </summary>
+    private void UpdateCelestialPolePositions()
+    {
+        if (northCelestialPole != null)
+        {
+            Vector3 northPos = CalculateCelestialPolePosition(true);
+            northCelestialPole.transform.localPosition = northPos;
+
+            if (northPoleLabel != null)
+            {
+                northPoleLabel.transform.localPosition = northPos.normalized * (sphereRadius * 1.15f);
+            }
+        }
+
+        if (southCelestialPole != null)
+        {
+            Vector3 southPos = CalculateCelestialPolePosition(false);
+            southCelestialPole.transform.localPosition = southPos;
+
+            if (southPoleLabel != null)
+            {
+                southPoleLabel.transform.localPosition = southPos.normalized * (sphereRadius * 1.15f);
+            }
+        }
     }
 
     /// <summary>
