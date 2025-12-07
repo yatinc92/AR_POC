@@ -297,6 +297,10 @@ public class CelestialSphereController : MonoBehaviour
 
         try
         {
+            // Update smoothed device rotation for fallback
+            Quaternion deviceRotation = GetDeviceRotation();
+            smoothedDeviceRotation = Quaternion.Slerp(smoothedDeviceRotation, deviceRotation, smoothFactor);
+
             // Get current compass heading for real-world direction
             float currentHeading = GetCompassHeading();
 
@@ -306,12 +310,12 @@ public class CelestialSphereController : MonoBehaviour
                 lastCompassHeading = currentHeading;
                 isOrientationInitialized = true;
                 initialAlignmentDone = true;
-                Debug.Log($"Initial alignment - Heading: {currentHeading:F1}°");
+                Debug.Log($"Initial alignment - Heading: {currentHeading:F1}Â°");
             }
             else
             {
                 // Smooth compass heading changes
-                if (Mathf.Abs(currentHeading - lastCompassHeading) > 0.5f)
+                if (Mathf.Abs(Mathf.DeltaAngle(lastCompassHeading, currentHeading)) > 0.5f)
                 {
                     lastCompassHeading = Mathf.LerpAngle(lastCompassHeading, currentHeading, smoothFactor);
                 }
@@ -423,37 +427,34 @@ public class CelestialSphereController : MonoBehaviour
 
         try
         {
-            float currentTime = Time.time;
-            if (currentTime - lastUpdateTime < UPDATE_INTERVAL)
-                return;
-
-            lastUpdateTime = currentTime;
-
-            // Get current compass heading - this is our real-world reference
-            float currentHeading = GetCompassHeading();
-
-            // KEY FIX: The celestial sphere should rotate OPPOSITE to the device rotation
-            // to maintain real-world alignment
+            // Use the smoothed compass heading for celestial sphere rotation
+            float currentHeading = lastCompassHeading;
 
             // Get device rotation (how the device is oriented in 3D space)
-            Quaternion deviceRotation = GetDeviceRotation();
+            Quaternion deviceRotation = smoothedDeviceRotation;
 
             // Calculate local sidereal time for celestial motion
             double lst = CalculateLocalSiderealTime();
 
             // Create the target rotation:
-            // 1. Start with sidereal time (celestial sphere rotation due to Earth's rotation)
-            // 2. Apply compass correction to align with real-world North
-            // 3. Compensate for device tilt to keep horizon level
+            // The celestial sphere should rotate based on compass heading so that
+            // cardinal directions (N, E, S, W) align with real-world directions
 
+            // When facing North (heading=0), celestial North should be in front
+            // When facing East (heading=90), celestial East should be in front
+            // This means the sphere rotates OPPOSITE to the compass heading
+
+            // Compass-based rotation: rotate the sphere so cardinal directions match real world
+            // Adding heading (not subtracting) because we want the sphere to appear stationary
+            // relative to the real world as the user turns
+            Quaternion compassRotation = Quaternion.Euler(0, currentHeading, 0);
+
+            // Sidereal time rotation: this accounts for Earth's rotation affecting star positions
             Quaternion siderealRotation = Quaternion.Euler(0, (float)lst, 0);
 
-            // Compass correction: rotate the sphere so that when device points North,
-            // the celestial sphere's North aligns with real North
-            Quaternion compassCorrection = Quaternion.Euler(0, -currentHeading, 0);
-
-            // Combine: first apply sidereal rotation, then compass correction
-            Quaternion celestialRotation = compassCorrection * siderealRotation;
+            // Combine: apply compass rotation to align with real-world directions
+            // The sidereal rotation is applied first, then compass adjustment
+            Quaternion celestialRotation = compassRotation * siderealRotation;
 
             // Apply device tilt compensation to keep the horizon level
             // Extract just the tilt (pitch and roll) from device rotation, ignore yaw
@@ -467,14 +468,14 @@ public class CelestialSphereController : MonoBehaviour
             celestialSphere.rotation = Quaternion.Slerp(
                 celestialSphere.rotation,
                 targetRotation,
-                smoothFactor * 0.3f // Conservative smoothing for stability
+                smoothFactor * 0.5f // Responsive but smooth
             );
 
             // Debug information
             if (Time.frameCount % 120 == 0)
             {
-                Debug.Log($"Real-World Alignment - Compass: {currentHeading:F1}°, " +
-                         $"Sidereal: {lst:F1}°, " +
+                Debug.Log($"Real-World Alignment - Compass: {currentHeading:F1}Â°, " +
+                         $"Sidereal: {lst:F1}Â°, " +
                          $"Device Tilt: ({deviceEuler.x:F1}, {deviceEuler.z:F1})");
             }
         }
@@ -488,17 +489,18 @@ public class CelestialSphereController : MonoBehaviour
     {
         if (deviceOrientationText != null)
         {
-            float heading = GetCompassHeading();
-            Vector3 deviceEuler = GetDeviceRotation().eulerAngles;
+            // Use the smoothed compass heading for display
+            float heading = lastCompassHeading;
+            Vector3 deviceEuler = smoothedDeviceRotation.eulerAngles;
 
             // Convert heading to cardinal direction
             string cardinal = GetCardinalDirection(heading);
 
-            string orientationInfo = $"Compass: {heading:F1}° {cardinal}\n";
-            orientationInfo += $"Device: Pitch:{deviceEuler.x:F1}°, Roll:{deviceEuler.z:F1}°\n";
-            orientationInfo += $"Sidereal Time: {CalculateLocalSiderealTime():F1}°\n";
+            string orientationInfo = $"Compass: {heading:F1}Â° {cardinal}\n";
+            orientationInfo += $"Device: Pitch:{deviceEuler.x:F1}Â°, Roll:{deviceEuler.z:F1}Â°\n";
+            orientationInfo += $"Sidereal Time: {CalculateLocalSiderealTime():F1}Â°\n";
             orientationInfo += $"AR Mode: {(useARDirection ? "ACTIVE" : "OFF")}";
-            orientationInfo += $"\nLocation: {latitude:F4}°, {longitude:F4}°";
+            orientationInfo += $"\nLocation: {latitude:F4}Â°, {longitude:F4}Â°";
 
             deviceOrientationText.text = orientationInfo;
         }
@@ -649,7 +651,7 @@ public class CelestialSphereController : MonoBehaviour
 
         // Galactic center coordinates (Sagittarius A*)
         double galacticCenterRA = 266.41667;  // 17h 45m 40s
-        double galacticCenterDec = -28.0;     // -29° 00' 28"
+        double galacticCenterDec = -28.0;     // -29ï¿½ 00' 28"
 
         return EquatorialToHorizontal(galacticCenterRA, galacticCenterDec, jd);
     }
@@ -974,7 +976,7 @@ public class CelestialSphereController : MonoBehaviour
             float altitude = sunPos.y;
             sunLight.intensity = Mathf.Clamp01((altitude + 6f) / 12f);
 
-            Debug.Log($"Sun position calculated: {sun.localPosition}, Altitude: {altitude:F1}°");
+            Debug.Log($"Sun position calculated: {sun.localPosition}, Altitude: {altitude:F1}ï¿½");
         }
         catch (System.Exception e)
         {
@@ -2058,14 +2060,14 @@ public class CelestialSphereController : MonoBehaviour
         {
             float sunAlt = GetAltitude(sun);
             float sunAz = GetAzimuth(sun);
-            sunPositionText.text = $"Sun: Alt {sunAlt:F1}°, Az {sunAz:F1}°";
+            sunPositionText.text = $"Sun: Alt {sunAlt:F1}ï¿½, Az {sunAz:F1}ï¿½";
         }
 
         if (moonPositionText != null)
         {
             float moonAlt = GetAltitude(moon);
             float moonAz = GetAzimuth(moon);
-            moonPositionText.text = $"Moon: Alt {moonAlt:F1}°, Az {moonAz:F1}°";
+            moonPositionText.text = $"Moon: Alt {moonAlt:F1}ï¿½, Az {moonAz:F1}ï¿½";
         }
     }
 
@@ -2135,7 +2137,7 @@ public class CelestialSphereController : MonoBehaviour
             float newHeading = GetCompassHeading();
             lastCompassHeading = newHeading;
 
-            Debug.Log($"Quick realignment - Current heading: {newHeading:F1}°");
+            Debug.Log($"Quick realignment - Current heading: {newHeading:F1}ï¿½");
 
             // Force immediate update
             UpdateCelestialSphereOrientation();
@@ -2160,7 +2162,7 @@ public class CelestialSphereController : MonoBehaviour
             lastCompassHeading = averageHeading;
             initialAlignmentDone = true;
 
-            Debug.Log($"Precise realignment - Average heading: {averageHeading:F1}° " +
+            Debug.Log($"Precise realignment - Average heading: {averageHeading:F1}ï¿½ " +
                      $"(Readings: {heading1:F1}, {heading2:F1}, {heading3:F1})");
 
             // Force immediate update
