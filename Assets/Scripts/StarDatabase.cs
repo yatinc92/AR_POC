@@ -339,24 +339,24 @@ public class StarDatabase : MonoBehaviour
 
     // Label Settings
     [Header("Label Settings")]
-    public float minLabelFontSize = 8f;
-    public float maxLabelFontSize = 36f; // increased for better readability
-    public float labelDistanceScaleFactor = 2f;
+    public float minLabelFontSize = 12f;
+    public float maxLabelFontSize = 48f; // increased for better readability with 2000 stars
+    public float labelDistanceScaleFactor = 2.5f;
     public bool autoScaleLabels = true;
-    public Color labelColor = new Color(0.9f, 0.95f, 1f, 0.9f);
-    public Color constellationLabelColor = new Color(0.7f, 0.8f, 1f, 0.6f);
-    
+    public Color labelColor = new Color(1f, 1f, 1f, 1f);
+    public Color constellationLabelColor = new Color(0.8f, 0.9f, 1f, 0.85f);
+
     // Label Visibility Control
     [Header("Label Visibility")]
-    public float labelShowThreshold = 3.0f; // magnitude below which labels show (brighter stars)
-    public float labelCameraDistanceFactor = 3.0f; // scales label distance from stars
-    public float minLabelCanvasScale = 0.5f; // minimum readable label scale
-    public float maxLabelCanvasScale = 5.00f; // maximum label scale
+    public float labelShowThreshold = 4.5f; // magnitude below which labels show (brighter stars)
+    public float labelCameraDistanceFactor = 4.0f; // scales label distance from stars
+    public float minLabelCanvasScale = 0.8f; // minimum readable label scale
+    public float maxLabelCanvasScale = 8.0f; // maximum label scale for proper readability
     public bool keepLabelsReadableFromCenter = true; // labels always readable from celestial center
 
     [Header("Label Limits")]
     [Tooltip("Maximum number of star name labels to create at once (helps performance with large catalogs)")]
-    public int maxStarLabels = 500;
+    public int maxStarLabels = 800;
 
     // Planet Label Settings
     [Header("Planet Labels")]
@@ -789,9 +789,9 @@ public class StarDatabase : MonoBehaviour
         text.fontStyle = FontStyles.Bold;
         text.enableAutoSizing = false; // We'll handle sizing manually
 
-        // Set up RectTransform for proper text positioning
+        // Set up RectTransform for proper text positioning - increased for 2000 stars visibility
         var textRect = textObj.GetComponent<RectTransform>();
-        textRect.sizeDelta = new Vector2(200, 60);
+        textRect.sizeDelta = new Vector2(400, 120);
         textRect.anchorMin = new Vector2(0.5f, 0.5f);
         textRect.anchorMax = new Vector2(0.5f, 0.5f);
         textRect.pivot = new Vector2(0.5f, 0.5f);
@@ -1135,10 +1135,899 @@ public class StarDatabase : MonoBehaviour
             color = GenerateStarColor(12100f)
         });
 
-        // Add more stars with positions around the celestial sphere...
-        // You should continue adding stars until you have 50
-        
+        // Continue adding more famous named stars
+        AddMoreNamedStars();
+
+        // Generate additional stars to reach ~2000 total
+        GenerateExtendedStarCatalog();
+
         Debug.Log($"[StarDatabase] Initialized with {brightStars.Count} stars");
+    }
+
+    /// <summary>
+    /// Add more well-known named stars from major constellations
+    /// </summary>
+    private void AddMoreNamedStars()
+    {
+        // Procyon (α CMi) - Canis Minor
+        brightStars.Add(new StarData {
+            name = "Procyon", spectralType = "F5IV-V", bayerDesignation = "α CMi",
+            constellation = "Canis Minor", rightAscension = 7.6553f, declination = 5.2250f,
+            magnitude = 0.34f, absoluteMagnitude = 2.65f, distanceLightYears = 11.46f,
+            temperature = 6530f, radius = 2.048f, mass = 1.499f,
+            starClass = StarClass.F, starType = StarType.MainSequence, color = GenerateStarColor(6530f)
+        });
+
+        // Achernar (α Eri) - Eridanus
+        brightStars.Add(new StarData {
+            name = "Achernar", spectralType = "B6Vep", bayerDesignation = "α Eri",
+            constellation = "Eridanus", rightAscension = 1.6286f, declination = -57.2367f,
+            magnitude = 0.46f, absoluteMagnitude = -2.77f, distanceLightYears = 139f,
+            temperature = 14500f, radius = 9.16f, mass = 6.7f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(14500f)
+        });
+
+        // Hadar (β Cen) - Centaurus
+        brightStars.Add(new StarData {
+            name = "Hadar", spectralType = "B1III", bayerDesignation = "β Cen",
+            constellation = "Centaurus", rightAscension = 14.0637f, declination = -60.3730f,
+            magnitude = 0.61f, absoluteMagnitude = -5.42f, distanceLightYears = 525f,
+            temperature = 25000f, radius = 12f, mass = 12.02f,
+            starClass = StarClass.B, starType = StarType.Giant, color = GenerateStarColor(25000f)
+        });
+
+        // Altair (α Aql) - Aquila
+        brightStars.Add(new StarData {
+            name = "Altair", spectralType = "A7V", bayerDesignation = "α Aql",
+            constellation = "Aquila", rightAscension = 19.8464f, declination = 8.8683f,
+            magnitude = 0.76f, absoluteMagnitude = 2.21f, distanceLightYears = 16.73f,
+            temperature = 7550f, radius = 1.79f, mass = 1.79f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(7550f)
+        });
+
+        // Acrux (α Cru) - Crux
+        brightStars.Add(new StarData {
+            name = "Acrux", spectralType = "B0.5IV", bayerDesignation = "α Cru",
+            constellation = "Crux", rightAscension = 12.4433f, declination = -63.0992f,
+            magnitude = 0.77f, absoluteMagnitude = -4.19f, distanceLightYears = 320f,
+            temperature = 28000f, radius = 7.8f, mass = 17.8f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(28000f)
+        });
+
+        // Aldebaran (α Tau) - Taurus
+        brightStars.Add(new StarData {
+            name = "Aldebaran", spectralType = "K5III", bayerDesignation = "α Tau",
+            constellation = "Taurus", rightAscension = 4.5987f, declination = 16.5093f,
+            magnitude = 0.85f, absoluteMagnitude = -0.63f, distanceLightYears = 65.3f,
+            temperature = 3910f, radius = 44.13f, mass = 1.16f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(3910f)
+        });
+
+        // Antares (α Sco) - Scorpius
+        brightStars.Add(new StarData {
+            name = "Antares", spectralType = "M1.5Iab", bayerDesignation = "α Sco",
+            constellation = "Scorpius", rightAscension = 16.4901f, declination = -26.4320f,
+            magnitude = 1.05f, absoluteMagnitude = -5.28f, distanceLightYears = 550f,
+            temperature = 3570f, radius = 680f, mass = 12.4f,
+            starClass = StarClass.M, starType = StarType.Supergiant, color = GenerateStarColor(3570f)
+        });
+
+        // Spica (α Vir) - Virgo
+        brightStars.Add(new StarData {
+            name = "Spica", spectralType = "B1III-IV", bayerDesignation = "α Vir",
+            constellation = "Virgo", rightAscension = 13.4199f, declination = -11.1614f,
+            magnitude = 0.97f, absoluteMagnitude = -3.55f, distanceLightYears = 250f,
+            temperature = 25300f, radius = 7.47f, mass = 11.43f,
+            starClass = StarClass.B, starType = StarType.Giant, color = GenerateStarColor(25300f)
+        });
+
+        // Pollux (β Gem) - Gemini
+        brightStars.Add(new StarData {
+            name = "Pollux", spectralType = "K0III", bayerDesignation = "β Gem",
+            constellation = "Gemini", rightAscension = 7.7553f, declination = 28.0262f,
+            magnitude = 1.14f, absoluteMagnitude = 1.08f, distanceLightYears = 33.78f,
+            temperature = 4666f, radius = 9.06f, mass = 1.91f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4666f)
+        });
+
+        // Fomalhaut (α PsA) - Piscis Austrinus
+        brightStars.Add(new StarData {
+            name = "Fomalhaut", spectralType = "A4V", bayerDesignation = "α PsA",
+            constellation = "Piscis Austrinus", rightAscension = 22.9608f, declination = -29.6222f,
+            magnitude = 1.16f, absoluteMagnitude = 1.73f, distanceLightYears = 25.13f,
+            temperature = 8590f, radius = 1.84f, mass = 1.92f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(8590f)
+        });
+
+        // Deneb (α Cyg) - Cygnus
+        brightStars.Add(new StarData {
+            name = "Deneb", spectralType = "A2Ia", bayerDesignation = "α Cyg",
+            constellation = "Cygnus", rightAscension = 20.6905f, declination = 45.2803f,
+            magnitude = 1.25f, absoluteMagnitude = -8.38f, distanceLightYears = 2615f,
+            temperature = 8525f, radius = 203f, mass = 19f,
+            starClass = StarClass.A, starType = StarType.Supergiant, color = GenerateStarColor(8525f)
+        });
+
+        // Mimosa (β Cru) - Crux
+        brightStars.Add(new StarData {
+            name = "Mimosa", spectralType = "B0.5IV", bayerDesignation = "β Cru",
+            constellation = "Crux", rightAscension = 12.7952f, declination = -59.6886f,
+            magnitude = 1.25f, absoluteMagnitude = -3.92f, distanceLightYears = 280f,
+            temperature = 27000f, radius = 8.4f, mass = 16f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(27000f)
+        });
+
+        // Regulus (α Leo) - Leo
+        brightStars.Add(new StarData {
+            name = "Regulus", spectralType = "B8IVn", bayerDesignation = "α Leo",
+            constellation = "Leo", rightAscension = 10.1395f, declination = 11.9672f,
+            magnitude = 1.35f, absoluteMagnitude = -0.52f, distanceLightYears = 77.5f,
+            temperature = 12460f, radius = 4.35f, mass = 3.8f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(12460f)
+        });
+
+        // Adhara (ε CMa) - Canis Major
+        brightStars.Add(new StarData {
+            name = "Adhara", spectralType = "B2Iab", bayerDesignation = "ε CMa",
+            constellation = "Canis Major", rightAscension = 6.9771f, declination = -28.9722f,
+            magnitude = 1.50f, absoluteMagnitude = -4.10f, distanceLightYears = 430f,
+            temperature = 22000f, radius = 13.9f, mass = 12.6f,
+            starClass = StarClass.B, starType = StarType.Supergiant, color = GenerateStarColor(22000f)
+        });
+
+        // Castor (α Gem) - Gemini
+        brightStars.Add(new StarData {
+            name = "Castor", spectralType = "A1V", bayerDesignation = "α Gem",
+            constellation = "Gemini", rightAscension = 7.5767f, declination = 31.8883f,
+            magnitude = 1.58f, absoluteMagnitude = 0.59f, distanceLightYears = 51f,
+            temperature = 10286f, radius = 2.4f, mass = 2.76f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(10286f)
+        });
+
+        // Gacrux (γ Cru) - Crux
+        brightStars.Add(new StarData {
+            name = "Gacrux", spectralType = "M3.5III", bayerDesignation = "γ Cru",
+            constellation = "Crux", rightAscension = 12.5194f, declination = -57.1128f,
+            magnitude = 1.63f, absoluteMagnitude = -0.56f, distanceLightYears = 88.6f,
+            temperature = 3626f, radius = 84f, mass = 1.3f,
+            starClass = StarClass.M, starType = StarType.Giant, color = GenerateStarColor(3626f)
+        });
+
+        // Shaula (λ Sco) - Scorpius
+        brightStars.Add(new StarData {
+            name = "Shaula", spectralType = "B2IV", bayerDesignation = "λ Sco",
+            constellation = "Scorpius", rightAscension = 17.5601f, declination = -37.1038f,
+            magnitude = 1.63f, absoluteMagnitude = -5.05f, distanceLightYears = 570f,
+            temperature = 25000f, radius = 8.8f, mass = 14.5f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(25000f)
+        });
+
+        // Bellatrix (γ Ori) - Orion
+        brightStars.Add(new StarData {
+            name = "Bellatrix", spectralType = "B2III", bayerDesignation = "γ Ori",
+            constellation = "Orion", rightAscension = 5.4188f, declination = 6.3497f,
+            magnitude = 1.64f, absoluteMagnitude = -2.78f, distanceLightYears = 250f,
+            temperature = 22000f, radius = 5.75f, mass = 8.6f,
+            starClass = StarClass.B, starType = StarType.Giant, color = GenerateStarColor(22000f)
+        });
+
+        // Elnath (β Tau) - Taurus
+        brightStars.Add(new StarData {
+            name = "Elnath", spectralType = "B7III", bayerDesignation = "β Tau",
+            constellation = "Taurus", rightAscension = 5.4382f, declination = 28.6074f,
+            magnitude = 1.65f, absoluteMagnitude = -1.34f, distanceLightYears = 134f,
+            temperature = 13600f, radius = 4.2f, mass = 5.0f,
+            starClass = StarClass.B, starType = StarType.Giant, color = GenerateStarColor(13600f)
+        });
+
+        // Miaplacidus (β Car) - Carina
+        brightStars.Add(new StarData {
+            name = "Miaplacidus", spectralType = "A2IV", bayerDesignation = "β Car",
+            constellation = "Carina", rightAscension = 9.2199f, declination = -69.7172f,
+            magnitude = 1.67f, absoluteMagnitude = -0.99f, distanceLightYears = 111f,
+            temperature = 8866f, radius = 6.8f, mass = 3.5f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(8866f)
+        });
+
+        // Alnilam (ε Ori) - Orion
+        brightStars.Add(new StarData {
+            name = "Alnilam", spectralType = "B0Ia", bayerDesignation = "ε Ori",
+            constellation = "Orion", rightAscension = 5.6036f, declination = -1.2019f,
+            magnitude = 1.69f, absoluteMagnitude = -6.37f, distanceLightYears = 2000f,
+            temperature = 27000f, radius = 42f, mass = 40f,
+            starClass = StarClass.B, starType = StarType.Supergiant, color = GenerateStarColor(27000f)
+        });
+
+        // Alnitak (ζ Ori) - Orion
+        brightStars.Add(new StarData {
+            name = "Alnitak", spectralType = "O9.7Ib", bayerDesignation = "ζ Ori",
+            constellation = "Orion", rightAscension = 5.6789f, declination = -1.9425f,
+            magnitude = 1.74f, absoluteMagnitude = -6.0f, distanceLightYears = 1260f,
+            temperature = 29500f, radius = 20f, mass = 33f,
+            starClass = StarClass.O, starType = StarType.Supergiant, color = GenerateStarColor(29500f)
+        });
+
+        // Alioth (ε UMa) - Ursa Major
+        brightStars.Add(new StarData {
+            name = "Alioth", spectralType = "A1III-IVp", bayerDesignation = "ε UMa",
+            constellation = "Ursa Major", rightAscension = 12.9004f, declination = 55.9598f,
+            magnitude = 1.77f, absoluteMagnitude = -0.21f, distanceLightYears = 82.6f,
+            temperature = 9020f, radius = 4.14f, mass = 2.91f,
+            starClass = StarClass.A, starType = StarType.Giant, color = GenerateStarColor(9020f)
+        });
+
+        // Mirfak (α Per) - Perseus
+        brightStars.Add(new StarData {
+            name = "Mirfak", spectralType = "F5Ib", bayerDesignation = "α Per",
+            constellation = "Perseus", rightAscension = 3.4054f, declination = 49.8612f,
+            magnitude = 1.79f, absoluteMagnitude = -4.50f, distanceLightYears = 510f,
+            temperature = 6350f, radius = 68f, mass = 8.5f,
+            starClass = StarClass.F, starType = StarType.Supergiant, color = GenerateStarColor(6350f)
+        });
+
+        // Dubhe (α UMa) - Ursa Major
+        brightStars.Add(new StarData {
+            name = "Dubhe", spectralType = "K0III", bayerDesignation = "α UMa",
+            constellation = "Ursa Major", rightAscension = 11.0621f, declination = 61.7510f,
+            magnitude = 1.81f, absoluteMagnitude = -1.09f, distanceLightYears = 123f,
+            temperature = 4660f, radius = 30f, mass = 4.25f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4660f)
+        });
+
+        // Wezen (δ CMa) - Canis Major
+        brightStars.Add(new StarData {
+            name = "Wezen", spectralType = "F8Ia", bayerDesignation = "δ CMa",
+            constellation = "Canis Major", rightAscension = 7.1396f, declination = -26.3932f,
+            magnitude = 1.83f, absoluteMagnitude = -6.87f, distanceLightYears = 1800f,
+            temperature = 5818f, radius = 215f, mass = 17f,
+            starClass = StarClass.F, starType = StarType.Supergiant, color = GenerateStarColor(5818f)
+        });
+
+        // Kaus Australis (ε Sgr) - Sagittarius
+        brightStars.Add(new StarData {
+            name = "Kaus Australis", spectralType = "B9.5III", bayerDesignation = "ε Sgr",
+            constellation = "Sagittarius", rightAscension = 18.4029f, declination = -34.3845f,
+            magnitude = 1.85f, absoluteMagnitude = -1.44f, distanceLightYears = 143f,
+            temperature = 9960f, radius = 6.8f, mass = 3.52f,
+            starClass = StarClass.B, starType = StarType.Giant, color = GenerateStarColor(9960f)
+        });
+
+        // Alkaid (η UMa) - Ursa Major
+        brightStars.Add(new StarData {
+            name = "Alkaid", spectralType = "B3V", bayerDesignation = "η UMa",
+            constellation = "Ursa Major", rightAscension = 13.7923f, declination = 49.3133f,
+            magnitude = 1.85f, absoluteMagnitude = -0.60f, distanceLightYears = 103.9f,
+            temperature = 15540f, radius = 3.4f, mass = 6.1f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(15540f)
+        });
+
+        // Sargas (θ Sco) - Scorpius
+        brightStars.Add(new StarData {
+            name = "Sargas", spectralType = "F1II", bayerDesignation = "θ Sco",
+            constellation = "Scorpius", rightAscension = 17.6224f, declination = -42.9973f,
+            magnitude = 1.87f, absoluteMagnitude = -2.75f, distanceLightYears = 272f,
+            temperature = 7268f, radius = 26f, mass = 5.7f,
+            starClass = StarClass.F, starType = StarType.Giant, color = GenerateStarColor(7268f)
+        });
+
+        // Avior (ε Car) - Carina
+        brightStars.Add(new StarData {
+            name = "Avior", spectralType = "K3III+B2V", bayerDesignation = "ε Car",
+            constellation = "Carina", rightAscension = 8.3752f, declination = -59.5095f,
+            magnitude = 1.86f, absoluteMagnitude = -4.58f, distanceLightYears = 632f,
+            temperature = 4050f, radius = 200f, mass = 10.5f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4050f)
+        });
+
+        // Menkalinan (β Aur) - Auriga
+        brightStars.Add(new StarData {
+            name = "Menkalinan", spectralType = "A1IV", bayerDesignation = "β Aur",
+            constellation = "Auriga", rightAscension = 5.9929f, declination = 44.9475f,
+            magnitude = 1.90f, absoluteMagnitude = -0.10f, distanceLightYears = 81.1f,
+            temperature = 9200f, radius = 2.77f, mass = 2.39f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(9200f)
+        });
+
+        // Atria (α TrA) - Triangulum Australe
+        brightStars.Add(new StarData {
+            name = "Atria", spectralType = "K2Ib-IIa", bayerDesignation = "α TrA",
+            constellation = "Triangulum Australe", rightAscension = 16.8110f, declination = -69.0277f,
+            magnitude = 1.91f, absoluteMagnitude = -3.68f, distanceLightYears = 415f,
+            temperature = 4150f, radius = 143f, mass = 7f,
+            starClass = StarClass.K, starType = StarType.Supergiant, color = GenerateStarColor(4150f)
+        });
+
+        // Alhena (γ Gem) - Gemini
+        brightStars.Add(new StarData {
+            name = "Alhena", spectralType = "A1.5IV+", bayerDesignation = "γ Gem",
+            constellation = "Gemini", rightAscension = 6.6285f, declination = 16.3993f,
+            magnitude = 1.93f, absoluteMagnitude = -0.60f, distanceLightYears = 109f,
+            temperature = 9260f, radius = 3.3f, mass = 2.81f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(9260f)
+        });
+
+        // Peacock (α Pav) - Pavo
+        brightStars.Add(new StarData {
+            name = "Peacock", spectralType = "B2IV", bayerDesignation = "α Pav",
+            constellation = "Pavo", rightAscension = 20.4275f, declination = -56.7350f,
+            magnitude = 1.94f, absoluteMagnitude = -1.82f, distanceLightYears = 179f,
+            temperature = 17711f, radius = 4.83f, mass = 5.91f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(17711f)
+        });
+
+        // Mirzam (β CMa) - Canis Major
+        brightStars.Add(new StarData {
+            name = "Mirzam", spectralType = "B1II-III", bayerDesignation = "β CMa",
+            constellation = "Canis Major", rightAscension = 6.3785f, declination = -17.9559f,
+            magnitude = 1.98f, absoluteMagnitude = -3.95f, distanceLightYears = 500f,
+            temperature = 25000f, radius = 9.7f, mass = 13.5f,
+            starClass = StarClass.B, starType = StarType.Giant, color = GenerateStarColor(25000f)
+        });
+
+        // Alphard (α Hya) - Hydra
+        brightStars.Add(new StarData {
+            name = "Alphard", spectralType = "K3II-III", bayerDesignation = "α Hya",
+            constellation = "Hydra", rightAscension = 9.4598f, declination = -8.6586f,
+            magnitude = 1.99f, absoluteMagnitude = -1.69f, distanceLightYears = 177f,
+            temperature = 4120f, radius = 50.5f, mass = 3.03f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4120f)
+        });
+
+        // Hamal (α Ari) - Aries
+        brightStars.Add(new StarData {
+            name = "Hamal", spectralType = "K2III", bayerDesignation = "α Ari",
+            constellation = "Aries", rightAscension = 2.1196f, declination = 23.4625f,
+            magnitude = 2.01f, absoluteMagnitude = 0.47f, distanceLightYears = 65.8f,
+            temperature = 4480f, radius = 14.9f, mass = 1.5f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4480f)
+        });
+
+        // Diphda (β Cet) - Cetus
+        brightStars.Add(new StarData {
+            name = "Diphda", spectralType = "K0III", bayerDesignation = "β Cet",
+            constellation = "Cetus", rightAscension = 0.7265f, declination = -17.9866f,
+            magnitude = 2.04f, absoluteMagnitude = -0.30f, distanceLightYears = 96.3f,
+            temperature = 4797f, radius = 16.78f, mass = 2.8f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4797f)
+        });
+
+        // Nunki (σ Sgr) - Sagittarius
+        brightStars.Add(new StarData {
+            name = "Nunki", spectralType = "B2.5V", bayerDesignation = "σ Sgr",
+            constellation = "Sagittarius", rightAscension = 18.9211f, declination = -26.2967f,
+            magnitude = 2.05f, absoluteMagnitude = -2.14f, distanceLightYears = 228f,
+            temperature = 20000f, radius = 4.5f, mass = 7.8f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(20000f)
+        });
+
+        // Menkent (θ Cen) - Centaurus
+        brightStars.Add(new StarData {
+            name = "Menkent", spectralType = "K0III", bayerDesignation = "θ Cen",
+            constellation = "Centaurus", rightAscension = 14.1114f, declination = -36.3700f,
+            magnitude = 2.06f, absoluteMagnitude = 0.70f, distanceLightYears = 60.9f,
+            temperature = 4980f, radius = 10.6f, mass = 1.27f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4980f)
+        });
+
+        // Saiph (κ Ori) - Orion
+        brightStars.Add(new StarData {
+            name = "Saiph", spectralType = "B0.5Ia", bayerDesignation = "κ Ori",
+            constellation = "Orion", rightAscension = 5.7959f, declination = -9.6697f,
+            magnitude = 2.07f, absoluteMagnitude = -4.65f, distanceLightYears = 650f,
+            temperature = 26500f, radius = 22.2f, mass = 15.5f,
+            starClass = StarClass.B, starType = StarType.Supergiant, color = GenerateStarColor(26500f)
+        });
+
+        // Mintaka (δ Ori) - Orion
+        brightStars.Add(new StarData {
+            name = "Mintaka", spectralType = "O9.5II", bayerDesignation = "δ Ori",
+            constellation = "Orion", rightAscension = 5.5335f, declination = -0.2991f,
+            magnitude = 2.25f, absoluteMagnitude = -4.99f, distanceLightYears = 916f,
+            temperature = 29500f, radius = 16.5f, mass = 24f,
+            starClass = StarClass.O, starType = StarType.Giant, color = GenerateStarColor(29500f)
+        });
+
+        // Merak (β UMa) - Ursa Major
+        brightStars.Add(new StarData {
+            name = "Merak", spectralType = "A1V", bayerDesignation = "β UMa",
+            constellation = "Ursa Major", rightAscension = 11.0308f, declination = 56.3825f,
+            magnitude = 2.34f, absoluteMagnitude = 0.41f, distanceLightYears = 79.7f,
+            temperature = 9377f, radius = 3.021f, mass = 2.7f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(9377f)
+        });
+
+        // Phecda (γ UMa) - Ursa Major
+        brightStars.Add(new StarData {
+            name = "Phecda", spectralType = "A0Ve", bayerDesignation = "γ UMa",
+            constellation = "Ursa Major", rightAscension = 11.8971f, declination = 53.6948f,
+            magnitude = 2.41f, absoluteMagnitude = 0.36f, distanceLightYears = 83.2f,
+            temperature = 9355f, radius = 2.91f, mass = 2.94f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(9355f)
+        });
+
+        // Megrez (δ UMa) - Ursa Major
+        brightStars.Add(new StarData {
+            name = "Megrez", spectralType = "A3V", bayerDesignation = "δ UMa",
+            constellation = "Ursa Major", rightAscension = 12.2571f, declination = 57.0326f,
+            magnitude = 3.32f, absoluteMagnitude = 1.33f, distanceLightYears = 80.5f,
+            temperature = 8630f, radius = 1.4f, mass = 1.63f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(8630f)
+        });
+
+        // Mizar (ζ UMa) - Ursa Major
+        brightStars.Add(new StarData {
+            name = "Mizar", spectralType = "A2V", bayerDesignation = "ζ UMa",
+            constellation = "Ursa Major", rightAscension = 13.3989f, declination = 54.9254f,
+            magnitude = 2.23f, absoluteMagnitude = 0.33f, distanceLightYears = 78f,
+            temperature = 9000f, radius = 2.4f, mass = 2.2f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(9000f)
+        });
+
+        // Alcor (80 UMa) - Ursa Major
+        brightStars.Add(new StarData {
+            name = "Alcor", spectralType = "A5V", bayerDesignation = "80 UMa",
+            constellation = "Ursa Major", rightAscension = 13.4206f, declination = 54.9880f,
+            magnitude = 3.99f, absoluteMagnitude = 2.00f, distanceLightYears = 81.7f,
+            temperature = 8000f, radius = 1.84f, mass = 1.8f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(8000f)
+        });
+
+        // Kochab (β UMi) - Ursa Minor
+        brightStars.Add(new StarData {
+            name = "Kochab", spectralType = "K4III", bayerDesignation = "β UMi",
+            constellation = "Ursa Minor", rightAscension = 14.8451f, declination = 74.1555f,
+            magnitude = 2.07f, absoluteMagnitude = -0.87f, distanceLightYears = 130.9f,
+            temperature = 4030f, radius = 42.1f, mass = 2.2f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4030f)
+        });
+
+        // Schedar (α Cas) - Cassiopeia
+        brightStars.Add(new StarData {
+            name = "Schedar", spectralType = "K0IIIa", bayerDesignation = "α Cas",
+            constellation = "Cassiopeia", rightAscension = 0.6751f, declination = 56.5373f,
+            magnitude = 2.24f, absoluteMagnitude = -1.99f, distanceLightYears = 228f,
+            temperature = 4530f, radius = 45.4f, mass = 4f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4530f)
+        });
+
+        // Caph (β Cas) - Cassiopeia
+        brightStars.Add(new StarData {
+            name = "Caph", spectralType = "F2III-IV", bayerDesignation = "β Cas",
+            constellation = "Cassiopeia", rightAscension = 0.1526f, declination = 59.1498f,
+            magnitude = 2.28f, absoluteMagnitude = 1.17f, distanceLightYears = 54.7f,
+            temperature = 7079f, radius = 3.5f, mass = 1.91f,
+            starClass = StarClass.F, starType = StarType.Giant, color = GenerateStarColor(7079f)
+        });
+
+        // Ruchbah (δ Cas) - Cassiopeia
+        brightStars.Add(new StarData {
+            name = "Ruchbah", spectralType = "A5III-IV", bayerDesignation = "δ Cas",
+            constellation = "Cassiopeia", rightAscension = 1.4303f, declination = 60.2353f,
+            magnitude = 2.66f, absoluteMagnitude = 0.24f, distanceLightYears = 99.4f,
+            temperature = 8400f, radius = 3.9f, mass = 2.49f,
+            starClass = StarClass.A, starType = StarType.Giant, color = GenerateStarColor(8400f)
+        });
+
+        // Segin (ε Cas) - Cassiopeia
+        brightStars.Add(new StarData {
+            name = "Segin", spectralType = "B3III", bayerDesignation = "ε Cas",
+            constellation = "Cassiopeia", rightAscension = 1.9066f, declination = 63.6701f,
+            magnitude = 3.35f, absoluteMagnitude = -2.31f, distanceLightYears = 410f,
+            temperature = 15000f, radius = 6f, mass = 9.2f,
+            starClass = StarClass.B, starType = StarType.Giant, color = GenerateStarColor(15000f)
+        });
+
+        // Algol (β Per) - Perseus
+        brightStars.Add(new StarData {
+            name = "Algol", spectralType = "B8V", bayerDesignation = "β Per",
+            constellation = "Perseus", rightAscension = 3.1363f, declination = 40.9557f,
+            magnitude = 2.12f, absoluteMagnitude = -0.07f, distanceLightYears = 92.8f,
+            temperature = 13000f, radius = 2.73f, mass = 3.17f, isVariable = true,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(13000f)
+        });
+
+        // Almach (γ And) - Andromeda
+        brightStars.Add(new StarData {
+            name = "Almach", spectralType = "K3IIb", bayerDesignation = "γ And",
+            constellation = "Andromeda", rightAscension = 2.0650f, declination = 42.3297f,
+            magnitude = 2.10f, absoluteMagnitude = -3.08f, distanceLightYears = 355f,
+            temperature = 4250f, radius = 80f, mass = 6f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4250f)
+        });
+
+        // Mirach (β And) - Andromeda
+        brightStars.Add(new StarData {
+            name = "Mirach", spectralType = "M0III", bayerDesignation = "β And",
+            constellation = "Andromeda", rightAscension = 1.1622f, declination = 35.6206f,
+            magnitude = 2.07f, absoluteMagnitude = -1.76f, distanceLightYears = 197f,
+            temperature = 3842f, radius = 100f, mass = 3.5f,
+            starClass = StarClass.M, starType = StarType.Giant, color = GenerateStarColor(3842f)
+        });
+
+        // Alpheratz (α And) - Andromeda
+        brightStars.Add(new StarData {
+            name = "Alpheratz", spectralType = "B8IVp", bayerDesignation = "α And",
+            constellation = "Andromeda", rightAscension = 0.1398f, declination = 29.0905f,
+            magnitude = 2.07f, absoluteMagnitude = -0.30f, distanceLightYears = 97f,
+            temperature = 13800f, radius = 2.7f, mass = 3.8f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(13800f)
+        });
+
+        // Denebola (β Leo) - Leo
+        brightStars.Add(new StarData {
+            name = "Denebola", spectralType = "A3V", bayerDesignation = "β Leo",
+            constellation = "Leo", rightAscension = 11.8177f, declination = 14.5720f,
+            magnitude = 2.14f, absoluteMagnitude = 1.92f, distanceLightYears = 35.9f,
+            temperature = 8500f, radius = 1.728f, mass = 1.78f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(8500f)
+        });
+
+        // Algieba (γ Leo) - Leo
+        brightStars.Add(new StarData {
+            name = "Algieba", spectralType = "K1III+G7III", bayerDesignation = "γ Leo",
+            constellation = "Leo", rightAscension = 10.3327f, declination = 19.8418f,
+            magnitude = 2.01f, absoluteMagnitude = -0.92f, distanceLightYears = 130f,
+            temperature = 4470f, radius = 31.8f, mass = 1.23f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4470f)
+        });
+
+        // Zosma (δ Leo) - Leo
+        brightStars.Add(new StarData {
+            name = "Zosma", spectralType = "A4V", bayerDesignation = "δ Leo",
+            constellation = "Leo", rightAscension = 11.2351f, declination = 20.5239f,
+            magnitude = 2.56f, absoluteMagnitude = 1.32f, distanceLightYears = 58.4f,
+            temperature = 8296f, radius = 2.14f, mass = 2.2f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(8296f)
+        });
+
+        // Rasalhague (α Oph) - Ophiuchus
+        brightStars.Add(new StarData {
+            name = "Rasalhague", spectralType = "A5III", bayerDesignation = "α Oph",
+            constellation = "Ophiuchus", rightAscension = 17.5822f, declination = 12.5600f,
+            magnitude = 2.08f, absoluteMagnitude = 1.30f, distanceLightYears = 48.6f,
+            temperature = 8000f, radius = 2.6f, mass = 2.4f,
+            starClass = StarClass.A, starType = StarType.Giant, color = GenerateStarColor(8000f)
+        });
+
+        // Sabik (η Oph) - Ophiuchus
+        brightStars.Add(new StarData {
+            name = "Sabik", spectralType = "A2.5V", bayerDesignation = "η Oph",
+            constellation = "Ophiuchus", rightAscension = 17.1726f, declination = -15.7250f,
+            magnitude = 2.43f, absoluteMagnitude = 0.37f, distanceLightYears = 84f,
+            temperature = 8900f, radius = 2.5f, mass = 2.2f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(8900f)
+        });
+
+        // Eltanin (γ Dra) - Draco
+        brightStars.Add(new StarData {
+            name = "Eltanin", spectralType = "K5III", bayerDesignation = "γ Dra",
+            constellation = "Draco", rightAscension = 17.9434f, declination = 51.4889f,
+            magnitude = 2.23f, absoluteMagnitude = -1.04f, distanceLightYears = 148f,
+            temperature = 3930f, radius = 48.15f, mass = 1.72f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(3930f)
+        });
+
+        // Rastaban (β Dra) - Draco
+        brightStars.Add(new StarData {
+            name = "Rastaban", spectralType = "G2Ib-II", bayerDesignation = "β Dra",
+            constellation = "Draco", rightAscension = 17.5072f, declination = 52.3014f,
+            magnitude = 2.79f, absoluteMagnitude = -2.43f, distanceLightYears = 380f,
+            temperature = 5160f, radius = 40f, mass = 6f,
+            starClass = StarClass.G, starType = StarType.Supergiant, color = GenerateStarColor(5160f)
+        });
+
+        // Thuban (α Dra) - Draco (former pole star)
+        brightStars.Add(new StarData {
+            name = "Thuban", spectralType = "A0III", bayerDesignation = "α Dra",
+            constellation = "Draco", rightAscension = 14.0732f, declination = 64.3758f,
+            magnitude = 3.67f, absoluteMagnitude = -1.20f, distanceLightYears = 303f,
+            temperature = 10100f, radius = 3.4f, mass = 3.4f,
+            starClass = StarClass.A, starType = StarType.Giant, color = GenerateStarColor(10100f)
+        });
+
+        // Sadr (γ Cyg) - Cygnus
+        brightStars.Add(new StarData {
+            name = "Sadr", spectralType = "F8Ib", bayerDesignation = "γ Cyg",
+            constellation = "Cygnus", rightAscension = 20.3702f, declination = 40.2567f,
+            magnitude = 2.23f, absoluteMagnitude = -6.12f, distanceLightYears = 1800f,
+            temperature = 5790f, radius = 150f, mass = 12.11f,
+            starClass = StarClass.F, starType = StarType.Supergiant, color = GenerateStarColor(5790f)
+        });
+
+        // Gienah Cygni (ε Cyg) - Cygnus
+        brightStars.Add(new StarData {
+            name = "Gienah Cygni", spectralType = "K0III", bayerDesignation = "ε Cyg",
+            constellation = "Cygnus", rightAscension = 20.7703f, declination = 33.9703f,
+            magnitude = 2.48f, absoluteMagnitude = 0.76f, distanceLightYears = 72.7f,
+            temperature = 4710f, radius = 12f, mass = 2f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4710f)
+        });
+
+        // Alderamin (α Cep) - Cepheus
+        brightStars.Add(new StarData {
+            name = "Alderamin", spectralType = "A7IV-V", bayerDesignation = "α Cep",
+            constellation = "Cepheus", rightAscension = 21.3096f, declination = 62.5856f,
+            magnitude = 2.45f, absoluteMagnitude = 1.58f, distanceLightYears = 49f,
+            temperature = 7740f, radius = 2.5f, mass = 1.74f,
+            starClass = StarClass.A, starType = StarType.MainSequence, color = GenerateStarColor(7740f)
+        });
+
+        // Errai (γ Cep) - Cepheus
+        brightStars.Add(new StarData {
+            name = "Errai", spectralType = "K1III-IV", bayerDesignation = "γ Cep",
+            constellation = "Cepheus", rightAscension = 23.6554f, declination = 77.6324f,
+            magnitude = 3.21f, absoluteMagnitude = 2.51f, distanceLightYears = 45f,
+            temperature = 4792f, radius = 4.93f, mass = 1.4f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4792f)
+        });
+
+        // Enif (ε Peg) - Pegasus
+        brightStars.Add(new StarData {
+            name = "Enif", spectralType = "K2Ib", bayerDesignation = "ε Peg",
+            constellation = "Pegasus", rightAscension = 21.7364f, declination = 9.8750f,
+            magnitude = 2.38f, absoluteMagnitude = -4.19f, distanceLightYears = 672f,
+            temperature = 4379f, radius = 185f, mass = 10.7f,
+            starClass = StarClass.K, starType = StarType.Supergiant, color = GenerateStarColor(4379f)
+        });
+
+        // Scheat (β Peg) - Pegasus
+        brightStars.Add(new StarData {
+            name = "Scheat", spectralType = "M2.5II-III", bayerDesignation = "β Peg",
+            constellation = "Pegasus", rightAscension = 23.0629f, declination = 28.0828f,
+            magnitude = 2.44f, absoluteMagnitude = -1.49f, distanceLightYears = 196f,
+            temperature = 3689f, radius = 95f, mass = 2.1f, isVariable = true,
+            starClass = StarClass.M, starType = StarType.Giant, color = GenerateStarColor(3689f)
+        });
+
+        // Markab (α Peg) - Pegasus
+        brightStars.Add(new StarData {
+            name = "Markab", spectralType = "B9III", bayerDesignation = "α Peg",
+            constellation = "Pegasus", rightAscension = 23.0793f, declination = 15.2053f,
+            magnitude = 2.49f, absoluteMagnitude = -0.67f, distanceLightYears = 140f,
+            temperature = 10100f, radius = 4.62f, mass = 3.5f,
+            starClass = StarClass.B, starType = StarType.Giant, color = GenerateStarColor(10100f)
+        });
+
+        // Algenib (γ Peg) - Pegasus
+        brightStars.Add(new StarData {
+            name = "Algenib", spectralType = "B2IV", bayerDesignation = "γ Peg",
+            constellation = "Pegasus", rightAscension = 0.2201f, declination = 15.1836f,
+            magnitude = 2.83f, absoluteMagnitude = -2.22f, distanceLightYears = 335f,
+            temperature = 21179f, radius = 4.8f, mass = 8.9f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(21179f)
+        });
+
+        // Ankaa (α Phe) - Phoenix
+        brightStars.Add(new StarData {
+            name = "Ankaa", spectralType = "K0III", bayerDesignation = "α Phe",
+            constellation = "Phoenix", rightAscension = 0.4381f, declination = -42.3061f,
+            magnitude = 2.40f, absoluteMagnitude = 0.52f, distanceLightYears = 77f,
+            temperature = 4436f, radius = 15f, mass = 1.57f,
+            starClass = StarClass.K, starType = StarType.Giant, color = GenerateStarColor(4436f)
+        });
+
+        // Alnair (α Gru) - Grus
+        brightStars.Add(new StarData {
+            name = "Alnair", spectralType = "B7IV", bayerDesignation = "α Gru",
+            constellation = "Grus", rightAscension = 22.1372f, declination = -46.9611f,
+            magnitude = 1.73f, absoluteMagnitude = -0.73f, distanceLightYears = 101f,
+            temperature = 13920f, radius = 3.4f, mass = 4f,
+            starClass = StarClass.B, starType = StarType.MainSequence, color = GenerateStarColor(13920f)
+        });
+    }
+
+    /// <summary>
+    /// Generate extended star catalog to reach approximately 2000 stars
+    /// Uses procedural generation with realistic celestial coordinates
+    /// </summary>
+    private void GenerateExtendedStarCatalog()
+    {
+        // Define constellation regions with their typical RA/Dec ranges
+        var constellationRegions = new List<(string name, float raMin, float raMax, float decMin, float decMax)>
+        {
+            ("Orion", 4.5f, 6.5f, -12f, 22f),
+            ("Ursa Major", 8f, 14f, 28f, 70f),
+            ("Cassiopeia", 22f, 3f, 46f, 77f),
+            ("Cygnus", 19f, 22f, 27f, 61f),
+            ("Scorpius", 15.5f, 18f, -45f, -8f),
+            ("Leo", 9f, 12f, -6f, 34f),
+            ("Lyra", 18f, 19.5f, 25f, 48f),
+            ("Andromeda", 22.5f, 2.5f, 21f, 53f),
+            ("Taurus", 3f, 6f, 0f, 31f),
+            ("Gemini", 5.5f, 8f, 10f, 35f),
+            ("Canis Major", 6f, 7.5f, -33f, -11f),
+            ("Virgo", 11.5f, 15f, -22f, 15f),
+            ("Bootes", 13.5f, 16f, 7f, 55f),
+            ("Perseus", 1.5f, 4.5f, 30f, 59f),
+            ("Hercules", 15.5f, 18.5f, 4f, 51f),
+            ("Centaurus", 11f, 15f, -64f, -29f),
+            ("Carina", 6f, 11f, -75f, -50f),
+            ("Crux", 11.5f, 13f, -65f, -55f),
+            ("Auriga", 4.5f, 7.5f, 28f, 56f),
+            ("Ophiuchus", 16f, 18.5f, -30f, 14f),
+            ("Sagittarius", 17.5f, 20f, -45f, -12f),
+            ("Aquarius", 20.5f, 23.5f, -25f, 3f),
+            ("Pisces", 22.5f, 2f, -7f, 34f),
+            ("Capricornus", 20f, 22f, -28f, -8f),
+            ("Aquila", 18.5f, 20.5f, -12f, 19f),
+            ("Draco", 9f, 21f, 47f, 86f),
+            ("Cepheus", 20f, 8f, 53f, 88f),
+            ("Pegasus", 21f, 1f, 2f, 36f),
+            ("Phoenix", 23f, 2.5f, -58f, -40f),
+            ("Grus", 21.5f, 23.5f, -57f, -37f),
+            ("Pavo", 17.5f, 21.5f, -75f, -57f),
+            ("Tucana", 22f, 1.5f, -75f, -57f),
+            ("Eridanus", 1.5f, 5f, -58f, 0f),
+            ("Hydra", 8f, 15f, -35f, 7f),
+            ("Puppis", 6f, 9f, -51f, -11f),
+            ("Vela", 8f, 11f, -57f, -37f),
+            ("Lupus", 14f, 16.5f, -55f, -30f),
+            ("Ara", 16.5f, 18f, -68f, -45f),
+            ("Corona Australis", 17.5f, 19.5f, -46f, -37f),
+            ("Triangulum Australe", 14.5f, 17f, -70f, -60f),
+            ("Norma", 15.5f, 17f, -60f, -42f),
+            ("Telescopium", 18f, 20.5f, -57f, -45f),
+            ("Indus", 20f, 23f, -75f, -45f),
+            ("Microscopium", 20f, 21.5f, -45f, -27f),
+            ("Sculptor", 23f, 2f, -40f, -24f),
+            ("Fornax", 2f, 4f, -40f, -24f),
+            ("Horologium", 2.5f, 4.5f, -67f, -40f),
+            ("Reticulum", 3f, 5f, -67f, -53f),
+            ("Pictor", 4f, 7f, -64f, -43f),
+            ("Dorado", 3.5f, 6.5f, -70f, -49f),
+            ("Volans", 6.5f, 9f, -75f, -64f),
+            ("Mensa", 3.5f, 7.5f, -85f, -70f),
+            ("Chamaeleon", 7.5f, 13.5f, -83f, -75f),
+            ("Musca", 11f, 14f, -75f, -64f),
+            ("Circinus", 13.5f, 15.5f, -70f, -55f),
+            ("Apus", 13.5f, 18.5f, -83f, -67f),
+            ("Octans", 0f, 24f, -90f, -74f),
+            ("Hydrus", 0f, 4.5f, -82f, -58f),
+            ("Camelopardalis", 3f, 14.5f, 52f, 86f),
+            ("Lynx", 6f, 9.5f, 33f, 62f),
+            ("Cancer", 7.5f, 9.5f, 6f, 33f),
+            ("Canis Minor", 7f, 8.5f, 0f, 13f),
+            ("Monoceros", 5.5f, 8.5f, -12f, 12f),
+            ("Lepus", 4.5f, 6.5f, -27f, -11f),
+            ("Columba", 5f, 7f, -43f, -27f),
+            ("Caelum", 4f, 5.5f, -49f, -37f),
+            ("Corvus", 11.5f, 12.75f, -25f, -11f),
+            ("Crater", 10.5f, 12f, -25f, -6f),
+            ("Sextans", 9.5f, 11f, -12f, 6f),
+            ("Antlia", 9f, 11f, -40f, -24f),
+            ("Pyxis", 8.5f, 9.5f, -37f, -17f),
+            ("Coma Berenices", 11.5f, 13.5f, 14f, 34f),
+            ("Canes Venatici", 12f, 14.5f, 27f, 53f),
+            ("Ursa Minor", 0f, 24f, 65f, 90f),
+            ("Corona Borealis", 15f, 16.5f, 25f, 40f),
+            ("Serpens", 15f, 19f, -16f, 26f),
+            ("Libra", 14f, 16f, -30f, 0f),
+            ("Scutum", 18f, 19f, -16f, -4f),
+            ("Sagitta", 19f, 20.5f, 16f, 22f),
+            ("Vulpecula", 19f, 21.5f, 19f, 29f),
+            ("Delphinus", 20f, 21.5f, 2f, 21f),
+            ("Equuleus", 20.5f, 21.5f, 2f, 13f),
+            ("Lacerta", 21.5f, 23f, 35f, 57f),
+            ("Triangulum", 1f, 3f, 25f, 37f),
+            ("Aries", 1.5f, 3.5f, 10f, 31f),
+        };
+
+        int starId = brightStars.Count + 1;
+        int targetStarCount = 2000;
+        System.Random rng = new System.Random(42); // Fixed seed for reproducibility
+
+        // Spectral type distributions by temperature
+        var spectralTypes = new List<(string type, StarClass starClass, float tempMin, float tempMax, float weight)>
+        {
+            ("O9V", StarClass.O, 30000f, 40000f, 0.001f),
+            ("B0V", StarClass.B, 25000f, 30000f, 0.01f),
+            ("B5V", StarClass.B, 15000f, 25000f, 0.03f),
+            ("A0V", StarClass.A, 9000f, 15000f, 0.06f),
+            ("A5V", StarClass.A, 7500f, 9000f, 0.08f),
+            ("F0V", StarClass.F, 7000f, 7500f, 0.10f),
+            ("F5V", StarClass.F, 6300f, 7000f, 0.12f),
+            ("G0V", StarClass.G, 5900f, 6300f, 0.15f),
+            ("G5V", StarClass.G, 5500f, 5900f, 0.12f),
+            ("K0V", StarClass.K, 5000f, 5500f, 0.10f),
+            ("K5V", StarClass.K, 4300f, 5000f, 0.08f),
+            ("M0V", StarClass.M, 3800f, 4300f, 0.07f),
+            ("M5V", StarClass.M, 3000f, 3800f, 0.05f),
+            ("K0III", StarClass.K, 4000f, 5000f, 0.015f),
+            ("M0III", StarClass.M, 3500f, 4000f, 0.01f),
+        };
+
+        float totalWeight = spectralTypes.Sum(s => s.weight);
+
+        while (brightStars.Count < targetStarCount)
+        {
+            // Pick a random constellation region
+            var region = constellationRegions[rng.Next(constellationRegions.Count)];
+
+            // Generate random position within region
+            float ra, dec;
+            if (region.raMin > region.raMax) // Wraps around 0/24h
+            {
+                float range = (24f - region.raMin) + region.raMax;
+                float offset = (float)rng.NextDouble() * range;
+                ra = (region.raMin + offset) % 24f;
+            }
+            else
+            {
+                ra = region.raMin + (float)rng.NextDouble() * (region.raMax - region.raMin);
+            }
+            dec = region.decMin + (float)rng.NextDouble() * (region.decMax - region.decMin);
+
+            // Pick spectral type based on weighted distribution
+            float pick = (float)rng.NextDouble() * totalWeight;
+            float cumulative = 0f;
+            var selectedType = spectralTypes[0];
+            foreach (var st in spectralTypes)
+            {
+                cumulative += st.weight;
+                if (pick <= cumulative)
+                {
+                    selectedType = st;
+                    break;
+                }
+            }
+
+            // Generate temperature within range
+            float temp = selectedType.tempMin + (float)rng.NextDouble() * (selectedType.tempMax - selectedType.tempMin);
+
+            // Generate magnitude (mostly fainter stars visible to naked eye)
+            float mag = 2.5f + (float)rng.NextDouble() * 4f; // 2.5 to 6.5 magnitude
+
+            // Brighter stars are less common
+            if (rng.NextDouble() < 0.15) mag = 1.5f + (float)rng.NextDouble() * 1.5f; // Some 1.5-3.0 mag stars
+            if (rng.NextDouble() < 0.02) mag = 0.5f + (float)rng.NextDouble() * 1.5f; // Rare bright stars
+
+            // Generate star name based on constellation
+            string starName = $"HD {100000 + starId}";
+            string bayerDes = "";
+
+            // Some stars get Greek letter designations
+            if (rng.NextDouble() < 0.3)
+            {
+                string[] greekLetters = { "α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "ι", "κ", "λ", "μ", "ν", "ξ", "ο", "π", "ρ", "σ", "τ", "υ", "φ", "χ", "ψ", "ω" };
+                string[] constellationAbbrevs = { "Ori", "UMa", "Cas", "Cyg", "Sco", "Leo", "Lyr", "And", "Tau", "Gem", "CMa", "Vir", "Boo", "Per", "Her", "Cen", "Car", "Cru", "Aur", "Oph", "Sgr", "Aqr", "Psc", "Cap", "Aql", "Dra", "Cep", "Peg", "Phe", "Gru", "Pav", "Tuc", "Eri", "Hya", "Pup", "Vel", "Lup", "Ara", "CrA", "TrA", "Nor", "Tel", "Ind", "Mic", "Scl", "For", "Hor", "Ret", "Pic", "Dor", "Vol", "Men", "Cha", "Mus", "Cir", "Aps", "Oct", "Hyi", "Cam", "Lyn", "Cnc", "CMi", "Mon", "Lep", "Col", "Cae", "Crv", "Crt", "Sex", "Ant", "Pyx", "Com", "CVn", "UMi", "CrB", "Ser", "Lib", "Sct", "Sge", "Vul", "Del", "Equ", "Lac", "Tri", "Ari" };
+
+                int regionIndex = constellationRegions.IndexOf(region);
+                string abbrev = regionIndex < constellationAbbrevs.Length ? constellationAbbrevs[regionIndex] : "XXX";
+                bayerDes = $"{greekLetters[rng.Next(greekLetters.Length)]} {abbrev}";
+            }
+
+            // Calculate derived properties
+            float absM = mag - 5f * Mathf.Log10(10f + (float)rng.NextDouble() * 990f) + 5f;
+            float dist = Mathf.Pow(10f, (mag - absM + 5f) / 5f);
+            float lum = AstrographicCalculations.CalculateLuminosityFromMagnitude(absM);
+            float radius = AstrographicCalculations.CalculateRadiusFromProperties(lum, temp);
+
+            brightStars.Add(new StarData
+            {
+                name = starName,
+                commonName = starName,
+                spectralType = selectedType.type,
+                bayerDesignation = bayerDes,
+                constellation = region.name,
+                rightAscension = ra,
+                declination = dec,
+                magnitude = mag,
+                absoluteMagnitude = absM,
+                distanceLightYears = dist * 3.26156f,
+                distanceParsecs = dist,
+                temperature = temp,
+                radius = radius,
+                mass = Mathf.Pow(lum, 0.25f), // Approximate mass-luminosity relation
+                luminosity = lum,
+                starClass = selectedType.starClass,
+                starType = selectedType.type.Contains("III") ? StarType.Giant :
+                           (selectedType.type.Contains("I") && !selectedType.type.Contains("II") && !selectedType.type.Contains("IV")) ? StarType.Supergiant :
+                           StarType.MainSequence,
+                color = GenerateStarColor(temp)
+            });
+
+            starId++;
+        }
     }
 
     private void InitializeConstellations()
