@@ -306,7 +306,7 @@ public class CelestialSphereController : MonoBehaviour
                 lastCompassHeading = currentHeading;
                 isOrientationInitialized = true;
                 initialAlignmentDone = true;
-                Debug.Log($"Initial alignment - Heading: {currentHeading:F1}°");
+                Debug.Log($"Initial alignment - Heading: {currentHeading:F1}ï¿½");
             }
             else
             {
@@ -473,8 +473,8 @@ public class CelestialSphereController : MonoBehaviour
             // Debug information
             if (Time.frameCount % 120 == 0)
             {
-                Debug.Log($"Real-World Alignment - Compass: {currentHeading:F1}°, " +
-                         $"Sidereal: {lst:F1}°, " +
+                Debug.Log($"Real-World Alignment - Compass: {currentHeading:F1}ï¿½, " +
+                         $"Sidereal: {lst:F1}ï¿½, " +
                          $"Device Tilt: ({deviceEuler.x:F1}, {deviceEuler.z:F1})");
             }
         }
@@ -494,11 +494,11 @@ public class CelestialSphereController : MonoBehaviour
             // Convert heading to cardinal direction
             string cardinal = GetCardinalDirection(heading);
 
-            string orientationInfo = $"Compass: {heading:F1}° {cardinal}\n";
-            orientationInfo += $"Device: Pitch:{deviceEuler.x:F1}°, Roll:{deviceEuler.z:F1}°\n";
-            orientationInfo += $"Sidereal Time: {CalculateLocalSiderealTime():F1}°\n";
+            string orientationInfo = $"Compass: {heading:F1}ï¿½ {cardinal}\n";
+            orientationInfo += $"Device: Pitch:{deviceEuler.x:F1}ï¿½, Roll:{deviceEuler.z:F1}ï¿½\n";
+            orientationInfo += $"Sidereal Time: {CalculateLocalSiderealTime():F1}ï¿½\n";
             orientationInfo += $"AR Mode: {(useARDirection ? "ACTIVE" : "OFF")}";
-            orientationInfo += $"\nLocation: {latitude:F4}°, {longitude:F4}°";
+            orientationInfo += $"\nLocation: {latitude:F4}ï¿½, {longitude:F4}ï¿½";
 
             deviceOrientationText.text = orientationInfo;
         }
@@ -649,7 +649,7 @@ public class CelestialSphereController : MonoBehaviour
 
         // Galactic center coordinates (Sagittarius A*)
         double galacticCenterRA = 266.41667;  // 17h 45m 40s
-        double galacticCenterDec = -28.0;     // -29° 00' 28"
+        double galacticCenterDec = -28.0;     // -29ï¿½ 00' 28"
 
         return EquatorialToHorizontal(galacticCenterRA, galacticCenterDec, jd);
     }
@@ -974,7 +974,7 @@ public class CelestialSphereController : MonoBehaviour
             float altitude = sunPos.y;
             sunLight.intensity = Mathf.Clamp01((altitude + 6f) / 12f);
 
-            Debug.Log($"Sun position calculated: {sun.localPosition}, Altitude: {altitude:F1}°");
+            Debug.Log($"Sun position calculated: {sun.localPosition}, Altitude: {altitude:F1}ï¿½");
         }
         catch (System.Exception e)
         {
@@ -1596,7 +1596,7 @@ public class CelestialSphereController : MonoBehaviour
 
         // Update toggle button text
         TextMeshProUGUI toggleText = toggleDashboardButton?.GetComponentInChildren<TextMeshProUGUI>();
-        if (toggleText != null) toggleText.fontSize = Mathf.RoundToInt(20 * uiScaleFactor);
+        if (toggleText != null) toggleText.fontSize = Mathf.RoundToInt(28 * uiScaleFactor);
     }
 
     private void CreateHeaderSection()
@@ -1891,33 +1891,35 @@ public class CelestialSphereController : MonoBehaviour
         GameObject toggleObj = CreateUIObject("ToggleButton", canvas.transform);
         RectTransform toggleRect = toggleObj.AddComponent<RectTransform>();
 
-        // Position in bottom center with responsive margins
-        float widthPercentage = 0.3f * uiScaleFactor; // Adjust width based on scale
-        float heightPercentage = 0.08f * uiScaleFactor; // Adjust height based on scale
+        // Position in bottom center with responsive margins - increased size for better text fit
+        float buttonWidth = Mathf.RoundToInt(220 * uiScaleFactor);
+        float buttonHeight = Mathf.RoundToInt(60 * uiScaleFactor);
 
-        toggleRect.anchorMin = new Vector2(0.5f - widthPercentage / 2, 0.02f);
-        toggleRect.anchorMax = new Vector2(0.5f + widthPercentage / 2, 0.02f + heightPercentage);
-        toggleRect.offsetMin = Vector2.zero;
-        toggleRect.offsetMax = Vector2.zero;
+        toggleRect.anchorMin = new Vector2(0.5f, 0.02f);
+        toggleRect.anchorMax = new Vector2(0.5f, 0.02f);
+        toggleRect.pivot = new Vector2(0.5f, 0f);
+        toggleRect.sizeDelta = new Vector2(buttonWidth, buttonHeight);
 
         toggleDashboardButton = toggleObj.AddComponent<Button>();
         Image toggleImage = toggleObj.AddComponent<Image>();
         toggleImage.color = new Color(0.3f, 0.3f, 0.3f, 0.9f);
         toggleImage.raycastTarget = true;
 
-        // Toggle text
+        // Toggle text with proper alignment
         GameObject textObj = CreateUIObject("ToggleText", toggleObj.transform);
         RectTransform textRect = textObj.AddComponent<RectTransform>();
         textRect.anchorMin = Vector2.zero;
         textRect.anchorMax = Vector2.one;
-        textRect.sizeDelta = Vector2.zero;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
 
         TextMeshProUGUI toggleText = textObj.AddComponent<TextMeshProUGUI>();
-        toggleText.text = "Hide UI";
-        toggleText.fontSize = Mathf.RoundToInt(20 * uiScaleFactor);
+        toggleText.text = "Hide Panel";
+        toggleText.fontSize = Mathf.RoundToInt(28 * uiScaleFactor);
         toggleText.color = Color.white;
         toggleText.alignment = TextAlignmentOptions.Center;
         toggleText.fontStyle = FontStyles.Bold;
+        toggleText.verticalAlignment = VerticalAlignmentOptions.Middle;
 
         toggleDashboardButton.onClick.AddListener(ToggleDashboard);
     }
@@ -2009,7 +2011,7 @@ public class CelestialSphereController : MonoBehaviour
         dashboardPanel.SetActive(isVisible);
 
         TextMeshProUGUI toggleText = toggleDashboardButton.GetComponentInChildren<TextMeshProUGUI>();
-        toggleText.text = isVisible ? "Hide UI" : "Show UI";
+        toggleText.text = isVisible ? "Hide Panel" : "Show Panel";
     }
 
     private IEnumerator ShowUpdateSuccess()
@@ -2058,14 +2060,14 @@ public class CelestialSphereController : MonoBehaviour
         {
             float sunAlt = GetAltitude(sun);
             float sunAz = GetAzimuth(sun);
-            sunPositionText.text = $"Sun: Alt {sunAlt:F1}°, Az {sunAz:F1}°";
+            sunPositionText.text = $"Sun: Alt {sunAlt:F1}ï¿½, Az {sunAz:F1}ï¿½";
         }
 
         if (moonPositionText != null)
         {
             float moonAlt = GetAltitude(moon);
             float moonAz = GetAzimuth(moon);
-            moonPositionText.text = $"Moon: Alt {moonAlt:F1}°, Az {moonAz:F1}°";
+            moonPositionText.text = $"Moon: Alt {moonAlt:F1}ï¿½, Az {moonAz:F1}ï¿½";
         }
     }
 
@@ -2135,7 +2137,7 @@ public class CelestialSphereController : MonoBehaviour
             float newHeading = GetCompassHeading();
             lastCompassHeading = newHeading;
 
-            Debug.Log($"Quick realignment - Current heading: {newHeading:F1}°");
+            Debug.Log($"Quick realignment - Current heading: {newHeading:F1}ï¿½");
 
             // Force immediate update
             UpdateCelestialSphereOrientation();
@@ -2160,7 +2162,7 @@ public class CelestialSphereController : MonoBehaviour
             lastCompassHeading = averageHeading;
             initialAlignmentDone = true;
 
-            Debug.Log($"Precise realignment - Average heading: {averageHeading:F1}° " +
+            Debug.Log($"Precise realignment - Average heading: {averageHeading:F1}ï¿½ " +
                      $"(Readings: {heading1:F1}, {heading2:F1}, {heading3:F1})");
 
             // Force immediate update
