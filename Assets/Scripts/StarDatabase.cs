@@ -355,8 +355,8 @@ public class StarDatabase : MonoBehaviour
     public bool keepLabelsReadableFromCenter = true; // labels always readable from celestial center
 
     [Header("Label Limits")]
-    [Tooltip("Maximum number of star name labels to create at once (helps performance with large catalogs)")]
-    public int maxStarLabels = 800;
+    [Tooltip("Maximum number of star name labels to create at once")]
+    public int maxStarLabels = 100;
 
     // Planet Label Settings
     [Header("Planet Labels")]
@@ -1138,10 +1138,10 @@ public class StarDatabase : MonoBehaviour
         // Continue adding more famous named stars
         AddMoreNamedStars();
 
-        // Generate additional stars to reach ~2000 total
-        GenerateExtendedStarCatalog();
+        // Only real stars visible from Earth - approximately 100 brightest stars
+        // Removed: GenerateExtendedStarCatalog() which created ~2000 procedurally generated fake stars
 
-        Debug.Log($"[StarDatabase] Initialized with {brightStars.Count} stars");
+        Debug.Log($"[StarDatabase] Initialized with {brightStars.Count} real stars (brightest visible from Earth)");
     }
 
     /// <summary>
