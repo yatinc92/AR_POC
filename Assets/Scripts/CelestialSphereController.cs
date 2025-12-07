@@ -127,6 +127,15 @@ public class CelestialSphereController : MonoBehaviour
         CreateCelestialObjectLabels();
 
         currentDateTime = DateTime.Now;
+        // Ensure dashboard input fields reflect the current system date/time
+        if (dateInput != null)
+        {
+            dateInput.text = currentDateTime.ToString("yyyy-MM-dd");
+        }
+        if (timeInput != null)
+        {
+            timeInput.text = currentDateTime.ToString("HH:mm");
+        }
         UpdateAllCelestialPositions();
        // AdjustForMobile();
         SetupARCamera();
@@ -306,7 +315,7 @@ public class CelestialSphereController : MonoBehaviour
                 lastCompassHeading = currentHeading;
                 isOrientationInitialized = true;
                 initialAlignmentDone = true;
-                Debug.Log($"Initial alignment - Heading: {currentHeading:F1}°");
+                Debug.Log($"Initial alignment - Heading: {currentHeading:F1}ï¿½");
             }
             else
             {
@@ -473,8 +482,8 @@ public class CelestialSphereController : MonoBehaviour
             // Debug information
             if (Time.frameCount % 120 == 0)
             {
-                Debug.Log($"Real-World Alignment - Compass: {currentHeading:F1}°, " +
-                         $"Sidereal: {lst:F1}°, " +
+                Debug.Log($"Real-World Alignment - Compass: {currentHeading:F1}ï¿½, " +
+                         $"Sidereal: {lst:F1}ï¿½, " +
                          $"Device Tilt: ({deviceEuler.x:F1}, {deviceEuler.z:F1})");
             }
         }
@@ -494,11 +503,11 @@ public class CelestialSphereController : MonoBehaviour
             // Convert heading to cardinal direction
             string cardinal = GetCardinalDirection(heading);
 
-            string orientationInfo = $"Compass: {heading:F1}° {cardinal}\n";
-            orientationInfo += $"Device: Pitch:{deviceEuler.x:F1}°, Roll:{deviceEuler.z:F1}°\n";
-            orientationInfo += $"Sidereal Time: {CalculateLocalSiderealTime():F1}°\n";
+            string orientationInfo = $"Compass: {heading:F1}ï¿½ {cardinal}\n";
+            orientationInfo += $"Device: Pitch:{deviceEuler.x:F1}ï¿½, Roll:{deviceEuler.z:F1}ï¿½\n";
+            orientationInfo += $"Sidereal Time: {CalculateLocalSiderealTime():F1}ï¿½\n";
             orientationInfo += $"AR Mode: {(useARDirection ? "ACTIVE" : "OFF")}";
-            orientationInfo += $"\nLocation: {latitude:F4}°, {longitude:F4}°";
+            orientationInfo += $"\nLocation: {latitude:F4}ï¿½, {longitude:F4}ï¿½";
 
             deviceOrientationText.text = orientationInfo;
         }
@@ -649,7 +658,7 @@ public class CelestialSphereController : MonoBehaviour
 
         // Galactic center coordinates (Sagittarius A*)
         double galacticCenterRA = 266.41667;  // 17h 45m 40s
-        double galacticCenterDec = -28.0;     // -29° 00' 28"
+        double galacticCenterDec = -28.0;     // -29ï¿½ 00' 28"
 
         return EquatorialToHorizontal(galacticCenterRA, galacticCenterDec, jd);
     }
@@ -974,7 +983,7 @@ public class CelestialSphereController : MonoBehaviour
             float altitude = sunPos.y;
             sunLight.intensity = Mathf.Clamp01((altitude + 6f) / 12f);
 
-            Debug.Log($"Sun position calculated: {sun.localPosition}, Altitude: {altitude:F1}°");
+            Debug.Log($"Sun position calculated: {sun.localPosition}, Altitude: {altitude:F1}ï¿½");
         }
         catch (System.Exception e)
         {
@@ -1691,11 +1700,11 @@ public class CelestialSphereController : MonoBehaviour
         horizontalLayout.childForceExpandHeight = true;
         horizontalLayout.childForceExpandWidth = true;
 
-        // Date input
-        dateInput = CreateResponsiveInputField("Date", "Date:", currentDateTime.ToString("yyyy-MM-dd"), datetimeSection.transform);
+        // Date input (use system now so UI shows current date even if currentDateTime set later)
+        dateInput = CreateResponsiveInputField("Date", "Date:", DateTime.Now.ToString("yyyy-MM-dd"), datetimeSection.transform);
 
-        // Time input
-        timeInput = CreateResponsiveInputField("Time", "Time:", currentDateTime.ToString("HH:mm"), datetimeSection.transform);
+        // Time input (use system now so UI shows current time even if currentDateTime set later)
+        timeInput = CreateResponsiveInputField("Time", "Time:", DateTime.Now.ToString("HH:mm"), datetimeSection.transform);
     }
 
     private void CreatePositionDisplaySection()
@@ -2058,14 +2067,14 @@ public class CelestialSphereController : MonoBehaviour
         {
             float sunAlt = GetAltitude(sun);
             float sunAz = GetAzimuth(sun);
-            sunPositionText.text = $"Sun: Alt {sunAlt:F1}°, Az {sunAz:F1}°";
+            sunPositionText.text = $"Sun: Alt {sunAlt:F1}ï¿½, Az {sunAz:F1}ï¿½";
         }
 
         if (moonPositionText != null)
         {
             float moonAlt = GetAltitude(moon);
             float moonAz = GetAzimuth(moon);
-            moonPositionText.text = $"Moon: Alt {moonAlt:F1}°, Az {moonAz:F1}°";
+            moonPositionText.text = $"Moon: Alt {moonAlt:F1}ï¿½, Az {moonAz:F1}ï¿½";
         }
     }
 
@@ -2135,7 +2144,7 @@ public class CelestialSphereController : MonoBehaviour
             float newHeading = GetCompassHeading();
             lastCompassHeading = newHeading;
 
-            Debug.Log($"Quick realignment - Current heading: {newHeading:F1}°");
+            Debug.Log($"Quick realignment - Current heading: {newHeading:F1}ï¿½");
 
             // Force immediate update
             UpdateCelestialSphereOrientation();
@@ -2160,7 +2169,7 @@ public class CelestialSphereController : MonoBehaviour
             lastCompassHeading = averageHeading;
             initialAlignmentDone = true;
 
-            Debug.Log($"Precise realignment - Average heading: {averageHeading:F1}° " +
+            Debug.Log($"Precise realignment - Average heading: {averageHeading:F1}ï¿½ " +
                      $"(Readings: {heading1:F1}, {heading2:F1}, {heading3:F1})");
 
             // Force immediate update

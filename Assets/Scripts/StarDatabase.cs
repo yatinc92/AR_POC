@@ -871,7 +871,7 @@ public class StarDatabase : MonoBehaviour
         );
 
         galacticCenter.transform.localPosition = centerPosition;
-        galacticCenter.transform.localScale = Vector3.one * 0.3f;
+        galacticCenter.transform.localScale = Vector3.one * 4.0f;
 
         Renderer renderer = galacticCenter.GetComponent<Renderer>();
         if (galacticCenterMaterial != null)
