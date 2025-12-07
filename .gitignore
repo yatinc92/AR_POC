@@ -1,0 +1,45 @@
+# Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+
+# Build files
+*.apk
+*.aab
+*.unitypackage
+*.ipa
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# Visual Studio
+.vs/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Unity specific
+sysinfo.txt
+*.pidb
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity Cloud Build
+[Uu]nity*[Cc]loud*[Bb]uild/
